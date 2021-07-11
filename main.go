@@ -1,11 +1,10 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"simple-golang-api/config"
+	api "simple-golang-api/controllers"
 	"simple-golang-api/models"
 
 	_ "github.com/lib/pq"
@@ -25,42 +24,72 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("ok"))
 }
 
-func getBrands(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("handled /")
-	db, err := config.ConnectDB()
+func brandHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 
-	if err != nil {
-		fmt.Println(err)
+	switch r.Method {
+	case "GET":
+		api.GetBrands(w, r)
+		return
+	case "POST":
+		var b models.Brand
+		api.CreateBrand(w, r, b)
+		return
+	default:
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"message": "not found"}`))
+		return
 	}
-	defer db.Close()
+}
 
-	rows, err := db.Query("select * from brand")
+func productHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 
-	if err != nil {
-		fmt.Println(err)
+	switch r.Method {
+	case "POST":
+		var p models.Product
+		api.CreateProduct(w, r, p)
+		return
+	case "GET":
+		api.GetProductById(w, r)
+		return
+	default:
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"message": "not found"}`))
+		return
 	}
-	defer rows.Close()
+}
 
-	var result []models.Brand
+func getProductByBrand(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	switch r.Method {
+	case "GET":
+		api.GetProductByBrand(w, r)
+		return
+	default:
 
-	for rows.Next() {
-		var brand models.Brand
-	
-		if err := rows.Scan(&brand.Id, &brand.Name); err != nil {
-			fmt.Println(err)
-		}
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"message": "not found"}`))
+		return
+	}
+}
 
-		result = append(result, brand)
+func orderHundler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	switch r.Method {
+	case "POST":
 
 	}
-	json.NewEncoder(w).Encode(result)
 }
 
 func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/api/", apiHandler{})
 	mux.HandleFunc("/", rootHandler)
-	mux.HandleFunc("/brands", getBrands)
+	mux.HandleFunc("/brand", brandHandler)
+	mux.HandleFunc("/product/brand", getProductByBrand)
+	mux.HandleFunc("/product", productHandler)
+	mux.HandleFunc("/order", orderHundler)
 
 	server := &http.Server{Addr: ":4000", Handler: mux}
 	log.Fatal(server.ListenAndServe())
