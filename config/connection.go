@@ -5,21 +5,21 @@ import (
 	"fmt"
 )
 
-func ConnectDB() (*sql.DB, error) {
-	connStr := "user=erwinwahyuramadhan dbname=jamtangan_db password= host=localhost sslmode=disable"
+var (
+	dbUser    = "erwinwahyuramadhan"
+	dbPass    = ""
+	dbHost    = "localhost"
+	dbName    = "jamtangan_db"
+	pgConnStr = fmt.Sprintf("user=%s dbname=%s password=%s host=%s sslmode=disable", dbUser, dbName, dbPass, dbHost)
+)
 
-	db, err := sql.Open("postgres", connStr)
+func ConnectDB() (*sql.DB, error) {
+	db, err := sql.Open("postgres", pgConnStr)
 
 	if err != nil {
 		return nil, err
 	}
 
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
 	fmt.Println("Successfully conected to database!")
 
 	return db, err
