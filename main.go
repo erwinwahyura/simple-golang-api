@@ -78,7 +78,17 @@ func orderHundler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case "POST":
+		var to models.TransactionOrder
+		api.CreateTrx(w, r, to)
+	}
+}
 
+func getTrxDetail(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	switch r.Method {
+	case "GET":
+		api.GetTrxById(w, r)
+		return
 	}
 }
 
@@ -89,6 +99,7 @@ func main() {
 	mux.HandleFunc("/brand", brandHandler)
 	mux.HandleFunc("/product/brand", getProductByBrand)
 	mux.HandleFunc("/product", productHandler)
+	mux.HandleFunc("/order/trx", getTrxDetail)
 	mux.HandleFunc("/order", orderHundler)
 
 	server := &http.Server{Addr: ":4000", Handler: mux}

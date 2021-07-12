@@ -95,7 +95,7 @@ func GetProductByBrand(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("select p.name as productName, p.id, p.price, p.brand_id, b.name as brand_name from product p inner join Brand b on b.id = p.brand_id where p.brand_id = $1 ", queryId)
+	rows, err := db.Query("select p.name as product_name, p.id, p.price, p.brand_id, b.name as brand_name from product p inner join Brand b on b.id = p.brand_id where p.brand_id = $1 ", queryId)
 	if err != nil {
 		resp := helpers.CustomeRes{
 			Msg:  "Error: while retrieve data from db",
