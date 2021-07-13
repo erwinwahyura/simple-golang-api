@@ -90,16 +90,3 @@ func TestCreateBrandWithEmptyName_Fail(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, errors.New("name cannot be empty"), err)
 }
-
-func TestCreateBrand_Success(t *testing.T) {
-	brand := models.JSONBrand{
-		Id:   1,
-		Name: "sadsdsell",
-	}
-	bm.Mock.On("CreateBrand").Return(brand)
-
-	res, err := Create(brand.Name, brand.Id)
-	assert.Nil(t, err)
-	assert.NotNil(t, res)
-	assert.Equal(t, res.Name, brand.Name)
-}
